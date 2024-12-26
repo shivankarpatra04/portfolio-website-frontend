@@ -10,16 +10,25 @@ export default function Login() {
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        const result = await signIn('credentials', {
-            email,
-            password,
-            redirect: false,
-        });
 
-        if (result.error) {
-            setError('Invalid Credentials');
-        } else {
-            router.push('/admin/dashboard'); // Redirect to dashboard
+        setError(''); // Reset error state before login attempt
+        try {
+            const result = await signIn('credentials', {
+                email,
+                password,
+                redirect: false, // Handle redirects manually
+            });
+
+            console.log('Login result:', result); // Debug login response
+
+            if (result?.error) {
+                setError('Invalid Credentials');
+            } else {
+                router.push('/admin/dashboard'); // Redirect to dashboard on success
+            }
+        } catch (err) {
+            console.error('Login error:', err);
+            setError('Something went wrong. Please try again.');
         }
     };
 
@@ -34,6 +43,7 @@ export default function Login() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         className="block w-full mb-4 p-2 border rounded"
+                        required
                     />
                     <input
                         type="password"
@@ -41,10 +51,11 @@ export default function Login() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         className="block w-full mb-4 p-2 border rounded"
+                        required
                     />
                     <button
                         type="submit"
-                        className="w-full bg-blue-500 text-white py-2 rounded"
+                        className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition duration-200"
                     >
                         Login
                     </button>
