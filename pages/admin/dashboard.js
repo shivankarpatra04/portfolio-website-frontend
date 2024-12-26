@@ -1,33 +1,48 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { getSession, signOut } from "next-auth/react";
+import { useRouter } from "next/router";
 import axios from "axios";
 
 export async function getServerSideProps(context) {
     const session = await getSession(context);
+    
     if (!session) {
-        return { redirect: { destination: "/admin/login", permanent: false } };
+        return {
+            redirect: {
+                destination: '/admin/login',
+                permanent: false,
+            },
+        };
     }
-    return { props: { session } };
+    
+    return { 
+        props: { 
+            session,
+            initialAuth: true 
+        } 
+    };
 }
 
-export default function Dashboard({ session }) {
+export default function Dashboard({ session, initialAuth }) {
+    const router = useRouter();
+    const [isAuthenticated, setIsAuthenticated] = useState(initialAuth);
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [editingProject, setEditingProject] = useState(null);
-    const [formData, setFormData] = useState({
-        title: "",
-        link: "",
-        frontendRepo: "",
-        backendRepo: "",
-        projectDescription: "",
-    });
-    const [imageFile, setImageFile] = useState(null);
-    const [videoFile, setVideoFile] = useState(null);
 
-    // Refs for file inputs
-    const imageInputRef = useRef(null);
-    const videoInputRef = useRef(null);
+    useEffect(() => {
+        const checkAuth = async () => {
+            const session = await getSession();
+            if (!session) {
+                router.replace('/admin/login');
+            } else {
+                setIsAuthenticated(true);
+                fetchProjects();
+            }
+        };
+
+        checkAuth();
+    }, [router]);
 
     const fetchProjects = async () => {
         try {
@@ -43,78 +58,22 @@ export default function Dashboard({ session }) {
         }
     };
 
-    useEffect(() => {
-        fetchProjects();
-    }, []);
-
-    const handleEdit = (project) => {
-        setEditingProject(project);
-        setFormData({
-            title: project.title,
-            link: project.link,
-            frontendRepo: project.frontendGithubLink || "",
-            backendRepo: project.backendGithubLink || "",
-            projectDescription: project.projectDescription || "",
-        });
-    };
-
-    const resetForm = () => {
-        setEditingProject(null);
-        setFormData({
-            title: "",
-            link: "",
-            frontendRepo: "",
-            backendRepo: "",
-            projectDescription: "",
-        });
-        setImageFile(null);
-        setVideoFile(null);
-        if (imageInputRef.current) imageInputRef.current.value = "";
-        if (videoInputRef.current) videoInputRef.current.value = "";
-    };
-
-    const handleFormSubmit = async (e) => {
-        e.preventDefault();
-
-        const data = new FormData();
-        data.append("title", formData.title);
-        data.append("link", formData.link);
-        data.append("frontendRepo", formData.frontendRepo);
-        data.append("backendRepo", formData.backendRepo);
-        data.append("projectDescription", formData.projectDescription);
-        if (imageFile) data.append("imageFile", imageFile);
-        if (videoFile) data.append("videoFile", videoFile);
-
+    const handleSignOut = async () => {
         try {
-            if (editingProject) {
-                await axios.put(
-                    `${process.env.NEXT_PUBLIC_API_URL}/api/projects/${editingProject._id}`,
-                    data
-                );
-                alert("Project updated successfully!");
-            } else {
-                await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/projects`, data);
-                alert("Project added successfully!");
-            }
-            fetchProjects();
-            resetForm();
-        } catch (err) {
-            console.error("Error saving project:", err);
-            alert("An error occurred. Please try again.");
+            await signOut({ redirect: false });
+            router.replace('/admin/login');
+        } catch (error) {
+            console.error('Signout error:', error);
         }
     };
 
-    const handleDelete = async (id) => {
-        if (confirm("Are you sure you want to delete this project?")) {
-            try {
-                await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/projects/${id}`);
-                fetchProjects();
-            } catch (err) {
-                console.error("Error deleting project:", err);
-                alert("Failed to delete the project. Please try again.");
-            }
-        }
-    };
+    if (!isAuthenticated) {
+        return (
+            <div className="h-screen flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gray-100 p-8">
