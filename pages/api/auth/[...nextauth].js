@@ -6,31 +6,43 @@ export default NextAuth({
         CredentialsProvider({
             name: 'Credentials',
             credentials: {
-                email: { label: "Email", type: "text" },
+                email: { label: "Email", type: "text", placeholder: "admin@example.com" },
                 password: { label: "Password", type: "password" },
             },
             async authorize(credentials) {
-                // Admin Credentials from environment variables
+                console.log('Received credentials:', credentials); // Debug credentials
+
                 const adminUser = {
                     email: process.env.ADMIN_EMAIL,
                     password: process.env.ADMIN_PASSWORD,
                 };
 
-                // Check if credentials match
                 if (
                     credentials.email === adminUser.email &&
                     credentials.password === adminUser.password
                 ) {
+                    console.log('Authorization successful');
                     return { email: adminUser.email }; // Successful login
                 }
 
-                // Return null if login fails
-                return null;
+                console.error('Authorization failed');
+                return null; // Login failed
             },
         }),
     ],
-    secret: process.env.NEXTAUTH_SECRET,
+    secret: process.env.NEXTAUTH_SECRET, // Ensure this is set in your environment variables
     pages: {
         signIn: '/admin/login', // Custom login page
+    },
+    callbacks: {
+        async session({ session, token }) {
+            console.log('Session callback triggered', { session, token });
+            return session; // Customize session as needed
+        },
+        async jwt({ token, user }) {
+            console.log('JWT callback triggered', { token, user });
+            if (user) token.user = user;
+            return token;
+        },
     },
 });
