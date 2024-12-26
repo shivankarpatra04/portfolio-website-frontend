@@ -8,7 +8,7 @@ const ProjectGallery = () => {
 
     const fetchProjects = async () => {
         try {
-            const res = await axios.get("https://portfolio-website-backend-five.vercel.app/api/projects");
+            const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/projects`);
             setProjects(res.data);
         } catch (err) {
             console.error("Error fetching projects:", err);
