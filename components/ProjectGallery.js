@@ -8,7 +8,7 @@ const ProjectGallery = () => {
 
     const fetchProjects = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects`);
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/projects`);
             setProjects(res.data);
         } catch (err) {
             console.error("Error fetching projects:", err);
