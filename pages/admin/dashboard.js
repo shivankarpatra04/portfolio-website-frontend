@@ -13,6 +13,7 @@ export async function getServerSideProps(context) {
 export default function Dashboard({ session }) {
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [editingProject, setEditingProject] = useState(null);
     const [formData, setFormData] = useState({
         title: "",
@@ -30,10 +31,13 @@ export default function Dashboard({ session }) {
 
     const fetchProjects = async () => {
         try {
-            const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/projects`);
-            setProjects(res.data);
+            setLoading(true);
+            setError(null);
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/projects`);
+            setProjects(response.data);
         } catch (err) {
             console.error("Error fetching projects:", err);
+            setError("Failed to load projects. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -83,7 +87,10 @@ export default function Dashboard({ session }) {
 
         try {
             if (editingProject) {
-                await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/projects/${editingProject._id}`, data);
+                await axios.put(
+                    `${process.env.NEXT_PUBLIC_API_URL}/api/projects/${editingProject._id}`,
+                    data
+                );
                 alert("Project updated successfully!");
             } else {
                 await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/projects`, data);
@@ -104,6 +111,7 @@ export default function Dashboard({ session }) {
                 fetchProjects();
             } catch (err) {
                 console.error("Error deleting project:", err);
+                alert("Failed to delete the project. Please try again.");
             }
         }
     };
@@ -119,6 +127,8 @@ export default function Dashboard({ session }) {
                     Logout
                 </button>
             </div>
+
+            {error && <p className="text-red-500 text-center">{error}</p>}
 
             <div className="bg-white p-6 rounded shadow-md mb-8">
                 <h2 className="text-2xl font-semibold mb-4">
@@ -194,9 +204,9 @@ export default function Dashboard({ session }) {
             <div className="bg-white p-6 rounded shadow-md">
                 <h2 className="text-2xl font-semibold mb-4">All Projects</h2>
                 {loading ? (
-                    <p>Loading projects...</p>
+                    <p className="text-center text-xl text-gray-600 animate-pulse">Loading...</p>
                 ) : projects.length === 0 ? (
-                    <p>No projects found.</p>
+                    <p className="text-center text-xl text-gray-600">No projects found.</p>
                 ) : (
                     <ul>
                         {projects.map((project) => (
