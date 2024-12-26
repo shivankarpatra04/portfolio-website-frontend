@@ -5,15 +5,19 @@ import ProjectCard from "./ProjectCard";
 const ProjectGallery = () => {
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null); // State to handle errors
 
     const fetchProjects = async () => {
         try {
+            setLoading(true); // Ensure loading starts
+            setError(null); // Reset error state
             const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/projects`);
-            setProjects(res.data);
+            setProjects(response.data);
         } catch (err) {
             console.error("Error fetching projects:", err);
+            setError("Failed to fetch projects. Please try again later."); // Set error message
         } finally {
-            setLoading(false);
+            setLoading(false); // Ensure loading ends
         }
     };
 
@@ -28,6 +32,10 @@ const ProjectGallery = () => {
             </h2>
             {loading ? (
                 <p className="text-center text-xl text-gray-600 animate-pulse">Loading...</p>
+            ) : error ? (
+                <p className="text-center text-xl text-red-500">{error}</p>
+            ) : projects.length === 0 ? (
+                <p className="text-center text-xl text-gray-600">No projects available at the moment.</p>
             ) : (
                 <div
                     className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 px-6 lg:px-12"
