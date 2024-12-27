@@ -12,6 +12,7 @@ export default function Login() {
 
     useEffect(() => {
         getSession().then((session) => {
+            console.log('Session on mount:', session);
             if (session) {
                 router.replace('/admin/dashboard');
             } else {
@@ -32,11 +33,14 @@ export default function Login() {
                 redirect: false,
             });
 
+            console.log('SignIn result:', result);
+
             if (result?.error) {
                 setError('Invalid credentials');
                 setLoading(false);
             } else if (result?.ok) {
                 const session = await getSession();
+                console.log('Post-login session:', session);
                 if (session) {
                     router.push('/admin/dashboard');
                 }
