@@ -1,5 +1,6 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+
 export default NextAuth({
     providers: [
         CredentialsProvider({
@@ -14,20 +15,39 @@ export default NextAuth({
                     email: process.env.ADMIN_EMAIL,
                     password: process.env.ADMIN_PASSWORD,
                 };
+
+                console.log('Authorizing with credentials:', credentials); // Debug credentials
+
                 // Check if credentials match
                 if (
                     credentials.email === adminUser.email &&
                     credentials.password === adminUser.password
                 ) {
+                    console.log('Authorization successful');
                     return { email: adminUser.email }; // Successful login
                 }
-                // Return null if login fails
-                return null;
+
+                console.error('Authorization failed');
+                return null; // Return null if login fails
             },
         }),
     ],
-    secret: process.env.NEXTAUTH_SECRET,
+    secret: process.env.NEXTAUTH_SECRET, // Ensure this is set in .env.local
     pages: {
         signIn: '/admin/login', // Custom login page
+    },
+    callbacks: {
+        async session({ session, token }) {
+            console.log('Session callback triggered:', { session, token });
+            session.user = token?.user || null; // Attach user info to session
+            return session;
+        },
+        async jwt({ token, user }) {
+            console.log('JWT callback triggered:', { token, user });
+            if (user) {
+                token.user = user; // Attach user data to JWT token
+            }
+            return token;
+        },
     },
 });
