@@ -1,21 +1,29 @@
+import { useEffect, useState, useRef } from "react";
 import { getSession, signOut } from "next-auth/react";
-import { useEffect, useState } from "react";
 import axios from "axios";
-
 export async function getServerSideProps(context) {
     const session = await getSession(context);
-    console.log('Session on server-side:', session);
-
     if (!session) {
         return { redirect: { destination: "/admin/login", permanent: false } };
     }
     return { props: { session } };
 }
-
 export default function Dashboard({ session }) {
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
-
+    const [editingProject, setEditingProject] = useState(null);
+    const [formData, setFormData] = useState({
+        title: "",
+        link: "",
+        frontendRepo: "",
+        backendRepo: "",
+        projectDescription: "",
+    });
+    const [imageFile, setImageFile] = useState(null);
+    const [videoFile, setVideoFile] = useState(null);
+    // Refs for file inputs
+    const imageInputRef = useRef(null);
+    const videoInputRef = useRef(null);
     const fetchProjects = async () => {
         try {
             const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/projects`);
@@ -26,11 +34,68 @@ export default function Dashboard({ session }) {
             setLoading(false);
         }
     };
-
     useEffect(() => {
         fetchProjects();
     }, []);
-
+    const handleEdit = (project) => {
+        setEditingProject(project);
+        setFormData({
+            title: project.title,
+            link: project.link,
+            frontendRepo: project.frontendGithubLink || "",
+            backendRepo: project.backendGithubLink || "",
+            projectDescription: project.projectDescription || "",
+        });
+    };
+    const resetForm = () => {
+        setEditingProject(null);
+        setFormData({
+            title: "",
+            link: "",
+            frontendRepo: "",
+            backendRepo: "",
+            projectDescription: "",
+        });
+        setImageFile(null);
+        setVideoFile(null);
+        if (imageInputRef.current) imageInputRef.current.value = "";
+        if (videoInputRef.current) videoInputRef.current.value = "";
+    };
+    const handleFormSubmit = async (e) => {
+        e.preventDefault();
+        const data = new FormData();
+        data.append("title", formData.title);
+        data.append("link", formData.link);
+        data.append("frontendRepo", formData.frontendRepo);
+        data.append("backendRepo", formData.backendRepo);
+        data.append("projectDescription", formData.projectDescription);
+        if (imageFile) data.append("imageFile", imageFile);
+        if (videoFile) data.append("videoFile", videoFile);
+        try {
+            if (editingProject) {
+                await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/projects/${editingProject._id}`, data);
+                alert("Project updated successfully!");
+            } else {
+                await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/projects`, data);
+                alert("Project added successfully!");
+            }
+            fetchProjects();
+            resetForm();
+        } catch (err) {
+            console.error("Error saving project:", err);
+            alert("An error occurred. Please try again.");
+        }
+    };
+    const handleDelete = async (id) => {
+        if (confirm("Are you sure you want to delete this project?")) {
+            try {
+                await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/projects/${id}`);
+                fetchProjects();
+            } catch (err) {
+                console.error("Error deleting project:", err);
+            }
+        }
+    };
     return (
         <div className="min-h-screen bg-gray-100 p-8">
             <div className="flex justify-between items-center mb-6">
@@ -42,9 +107,6 @@ export default function Dashboard({ session }) {
                     Logout
                 </button>
             </div>
-
-            {error && <p className="text-red-500 text-center">{error}</p>}
-
             <div className="bg-white p-6 rounded shadow-md mb-8">
                 <h2 className="text-2xl font-semibold mb-4">
                     {editingProject ? "Edit Project" : "Add New Project"}
@@ -115,13 +177,12 @@ export default function Dashboard({ session }) {
                     )}
                 </form>
             </div>
-
             <div className="bg-white p-6 rounded shadow-md">
                 <h2 className="text-2xl font-semibold mb-4">All Projects</h2>
                 {loading ? (
-                    <p className="text-center text-xl text-gray-600 animate-pulse">Loading...</p>
+                    <p>Loading projects...</p>
                 ) : projects.length === 0 ? (
-                    <p className="text-center text-xl text-gray-600">No projects found.</p>
+                    <p>No projects found.</p>
                 ) : (
                     <ul>
                         {projects.map((project) => (
