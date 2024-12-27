@@ -1,7 +1,6 @@
-import { signIn } from 'next-auth/react';
+import { signIn, getSession } from 'next-auth/react';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { getSession } from 'next-auth/react';
 
 export default function Login() {
     const [email, setEmail] = useState('');
@@ -11,14 +10,22 @@ export default function Login() {
     const router = useRouter();
 
     useEffect(() => {
-        getSession().then((session) => {
-            console.log('Session on mount:', session);
-            if (session) {
-                router.replace('/admin/dashboard');
-            } else {
+        const checkSession = async () => {
+            try {
+                const session = await getSession();
+                console.log('Session on mount:', session);
+                if (session) {
+                    router.replace('/admin/dashboard');
+                } else {
+                    setLoading(false);
+                }
+            } catch (err) {
+                console.error('Error fetching session:', err);
                 setLoading(false);
             }
-        });
+        };
+
+        checkSession();
     }, [router]);
 
     const handleLogin = async (e) => {
