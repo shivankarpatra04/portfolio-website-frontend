@@ -1,79 +1,35 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { getSession, signOut } from "next-auth/react";
-import { useRouter } from "next/router";
 import axios from "axios";
 
 export async function getServerSideProps(context) {
     const session = await getSession(context);
-    
+    console.log('Session on server-side:', session);
+
     if (!session) {
-        return {
-            redirect: {
-                destination: '/admin/login',
-                permanent: false,
-            },
-        };
+        return { redirect: { destination: "/admin/login", permanent: false } };
     }
-    
-    return { 
-        props: { 
-            session,
-            initialAuth: true 
-        } 
-    };
+    return { props: { session } };
 }
 
-export default function Dashboard({ session, initialAuth }) {
-    const router = useRouter();
-    const [isAuthenticated, setIsAuthenticated] = useState(initialAuth);
+export default function Dashboard({ session }) {
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-
-    useEffect(() => {
-        const checkAuth = async () => {
-            const session = await getSession();
-            if (!session) {
-                router.replace('/admin/login');
-            } else {
-                setIsAuthenticated(true);
-                fetchProjects();
-            }
-        };
-
-        checkAuth();
-    }, [router]);
 
     const fetchProjects = async () => {
         try {
-            setLoading(true);
-            setError(null);
-            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/projects`);
-            setProjects(response.data);
+            const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/projects`);
+            setProjects(res.data);
         } catch (err) {
             console.error("Error fetching projects:", err);
-            setError("Failed to load projects. Please try again.");
         } finally {
             setLoading(false);
         }
     };
 
-    const handleSignOut = async () => {
-        try {
-            await signOut({ redirect: false });
-            router.replace('/admin/login');
-        } catch (error) {
-            console.error('Signout error:', error);
-        }
-    };
-
-    if (!isAuthenticated) {
-        return (
-            <div className="h-screen flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-            </div>
-        );
-    }
+    useEffect(() => {
+        fetchProjects();
+    }, []);
 
     return (
         <div className="min-h-screen bg-gray-100 p-8">
