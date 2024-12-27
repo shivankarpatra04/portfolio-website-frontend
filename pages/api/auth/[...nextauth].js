@@ -10,7 +10,7 @@ export default NextAuth({
                 password: { label: "Password", type: "password" },
             },
             async authorize(credentials) {
-                console.log('Received credentials:', credentials); // Debug credentials
+                console.log('Received credentials:', credentials);
 
                 const adminUser = {
                     email: process.env.ADMIN_EMAIL,
@@ -22,25 +22,26 @@ export default NextAuth({
                     credentials.password === adminUser.password
                 ) {
                     console.log('Authorization successful');
-                    return { email: adminUser.email }; // Successful login
+                    return { email: adminUser.email };
                 }
 
                 console.error('Authorization failed');
-                return null; // Login failed
+                return null;
             },
         }),
     ],
-    secret: process.env.NEXTAUTH_SECRET, // Ensure this is set in your environment variables
+    secret: process.env.NEXTAUTH_SECRET,
     pages: {
-        signIn: '/admin/login', // Custom login page
+        signIn: '/admin/login',
     },
     callbacks: {
         async session({ session, token }) {
-            console.log('Session callback triggered', { session, token });
-            return session; // Customize session as needed
+            console.log('Session callback:', { session, token });
+            session.user = token.user || null; // Ensure user is attached to the session
+            return session;
         },
         async jwt({ token, user }) {
-            console.log('JWT callback triggered', { token, user });
+            console.log('JWT callback:', { token, user });
             if (user) token.user = user;
             return token;
         },
