@@ -15,7 +15,7 @@ const AboutMe = () => {
                         className="flex justify-center"
                         style={{ animation: "slideInLeft 1.5s ease-in-out" }}
                     >
-                        <div className="relative w-72 h-72 flex items-center justify-center bg-[#0077B5] rounded-full shadow-lg">
+                        <div className="relative w-72 h-72 flex items-center justify-center bg-[#0077B5] rounded-full shadow-lg hover:shadow-2xl hover:scale-105 transition-transform duration-300">
                             <img
                                 src="/profile.png" // Replace with your profile image path
                                 alt="Shivankar Patra"
