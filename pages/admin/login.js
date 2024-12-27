@@ -7,18 +7,20 @@ export default function Login() {
     const [error, setError] = useState('');
     const router = useRouter();
     const handleLogin = async (e) => {
-        e.preventDefault();
-        const result = await signIn('credentials', {
-            email,
-            password,
-            redirect: false,
-        });
-        if (result.error) {
-            setError('Invalid Credentials');
-        } else {
-            router.push('/admin/dashboard'); // Redirect to dashboard
-        }
-    };
+    e.preventDefault();
+    const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+    });
+    console.log('Sign in result:', result); // देखें कि result में क्या आ रहा है
+    if (result.error) {
+        setError('Invalid Credentials');
+    } else {
+        console.log('Attempting redirect to dashboard...'); // रीडायरेक्ट से पहले लॉग
+        router.push('/admin/dashboard');
+    }
+};
     return (
         <div className="h-screen flex items-center justify-center bg-gray-200">
             <div className="bg-white p-8 rounded shadow-lg w-96">
