@@ -1,110 +1,51 @@
-import { signIn, getSession } from 'next-auth/react';
-import { useState, useEffect } from 'react';
+import { signIn } from 'next-auth/react';
+import { useState } from 'react';
 import { useRouter } from 'next/router';
-
 export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    const [loading, setLoading] = useState(true);
     const router = useRouter();
-
-    useEffect(() => {
-        const checkSession = async () => {
-            try {
-                const session = await getSession();
-                console.log('Session on mount:', session);
-                if (session) {
-                    router.replace('/admin/dashboard');
-                } else {
-                    setLoading(false);
-                }
-            } catch (err) {
-                console.error('Error fetching session:', err);
-                setLoading(false);
-            }
-        };
-
-        checkSession();
-    }, [router]);
-
     const handleLogin = async (e) => {
         e.preventDefault();
-        setError('');
-        setLoading(true);
-
-        try {
-            const result = await signIn('credentials', {
-                email,
-                password,
-                redirect: false,
-            });
-
-            console.log('SignIn result:', result);
-
-            if (result?.error) {
-                setError('Invalid credentials');
-                setLoading(false);
-            } else if (result?.ok) {
-                const session = await getSession();
-                console.log('Post-login session:', session);
-                if (session) {
-                    router.push('/admin/dashboard');
-                }
-            }
-        } catch (err) {
-            console.error('Login error:', err);
-            setError('Something went wrong. Please try again.');
-            setLoading(false);
+        const result = await signIn('credentials', {
+            email,
+            password,
+            redirect: false,
+        });
+        if (result.error) {
+            setError('Invalid Credentials');
+        } else {
+            router.push('/admin/dashboard'); // Redirect to dashboard
         }
     };
-
-    if (loading) {
-        return (
-            <div className="h-screen flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-            </div>
-        );
-    }
-
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100">
-            <div className="bg-white p-8 rounded-lg shadow-md w-96">
-                <h1 className="text-2xl font-bold text-center mb-6">Admin Login</h1>
-                <form onSubmit={handleLogin} className="space-y-4">
-                    <div>
-                        <input
-                            type="email"
-                            placeholder="Email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            required
-                        />
-                    </div>
-                    <div>
-                        <input
-                            type="password"
-                            placeholder="Password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            required
-                        />
-                    </div>
+        <div className="h-screen flex items-center justify-center bg-gray-200">
+            <div className="bg-white p-8 rounded shadow-lg w-96">
+                <h1 className="text-2xl mb-4 font-bold text-center">Admin Login</h1>
+                <form onSubmit={handleLogin}>
+                    <input
+                        type="email"
+                        placeholder="Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="block w-full mb-4 p-2 border rounded"
+                    />
+                    <input
+                        type="password"
+                        placeholder="Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="block w-full mb-4 p-2 border rounded"
+                    />
                     <button
                         type="submit"
-                        disabled={loading}
-                        className="w-full bg-blue-500 text-white py-3 rounded-md hover:bg-blue-600 transition duration-200 disabled:opacity-50"
+                        className="w-full bg-blue-500 text-white py-2 rounded"
                     >
-                        {loading ? 'Logging in...' : 'Login'}
+                        Login
                     </button>
                 </form>
-                {error && (
-                    <div className="mt-4 text-center text-red-500 bg-red-50 p-3 rounded-md">
-                        {error}
-                    </div>
-                )}
+                {error && <p className="text-red-500 mt-2 text-center">{error}</p>}
             </div>
         </div>
     );
