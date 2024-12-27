@@ -10,23 +10,19 @@ const AboutMe = () => {
                     About Me
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-    {/* Profile Image */}
-       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
                     {/* Profile Image */}
                     <div
                         className="flex justify-center"
                         style={{ animation: "slideInLeft 1.5s ease-in-out" }}
                     >
-                    <div
-                        className="relative w-72 h-72 flex items-center justify-center bg-blue-600 rounded-full shadow-lg"
-                    >
-                        <img
-                            src="/profile.png" // Replace with your profile image path
-                            alt="Shivankar Patra"
-                            className="w-64 h-64 rounded-full shadow-lg border-4 border-gray-200 object-cover hover:scale-105 transition-transform duration-300"
-                        />
+                        <div className="relative w-72 h-72 flex items-center justify-center bg-blue-600 rounded-full shadow-lg">
+                            <img
+                                src="/profile.png" // Replace with your profile image path
+                                alt="Shivankar Patra"
+                                className="w-64 h-64 rounded-full shadow-lg border-4 border-white object-cover hover:scale-105 transition-transform duration-300"
+                            />
+                        </div>
                     </div>
-
 
                     {/* About Me Content */}
                     <div>
@@ -70,10 +66,11 @@ const AboutMe = () => {
                                 href="https://www.linkedin.com/in/shivankar-patra/"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className={`inline-block px-6 py-3 rounded-full text-lg shadow-lg transition-transform duration-300 ${hoveredButton === "linkedin"
-                                    ? "bg-blue-700 text-white scale-105"
-                                    : "bg-blue-600 text-white hover:scale-105"
-                                    }`}
+                                className={`inline-block px-6 py-3 rounded-full text-lg shadow-lg transition-transform duration-300 ${
+                                    hoveredButton === "linkedin"
+                                        ? "bg-blue-700 text-white scale-105"
+                                        : "bg-blue-600 text-white hover:scale-105"
+                                }`}
                                 onMouseEnter={() => setHoveredButton("linkedin")}
                                 onMouseLeave={() => setHoveredButton(null)}
                             >
@@ -84,10 +81,11 @@ const AboutMe = () => {
                                 href="https://github.com/shivankarpatra04"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className={`inline-block px-6 py-3 rounded-full text-lg shadow-lg transition-transform duration-300 ${hoveredButton === "github"
-                                    ? "bg-gray-900 text-white scale-105"
-                                    : "bg-gray-800 text-white hover:scale-105"
-                                    }`}
+                                className={`inline-block px-6 py-3 rounded-full text-lg shadow-lg transition-transform duration-300 ${
+                                    hoveredButton === "github"
+                                        ? "bg-gray-900 text-white scale-105"
+                                        : "bg-gray-800 text-white hover:scale-105"
+                                }`}
                                 onMouseEnter={() => setHoveredButton("github")}
                                 onMouseLeave={() => setHoveredButton(null)}
                             >
