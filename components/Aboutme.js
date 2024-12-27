@@ -10,17 +10,23 @@ const AboutMe = () => {
                     About Me
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                    {/* Profile Image */}
-                    <div
-                        className="flex justify-center"
-                        style={{ animation: "slideInLeft 1.5s ease-in-out" }}
-                    >
-                        <img
-                            src="/profile.png" // Replace with your profile image path
-                            alt="Shivankar Patra"
-                            className="w-64 h-64 rounded-full shadow-lg border-4 border-gray-200 object-cover hover:scale-105 transition-transform duration-300"
-                        />
-                    </div>
+    {/* Profile Image */}
+    <div
+        className="flex justify-center"
+        style={{ animation: "slideInLeft 1.5s ease-in-out" }}
+    >
+        <div
+            className="relative w-72 h-72 flex items-center justify-center bg-blue-600 rounded-full shadow-lg"
+        >
+            <img
+                src="/profile.png" // Replace with your profile image path
+                alt="Shivankar Patra"
+                className="w-64 h-64 rounded-full shadow-lg border-4 border-white object-cover hover:scale-105 transition-transform duration-300"
+            />
+        </div>
+    </div>
+</div>
+
 
                     {/* About Me Content */}
                     <div>
