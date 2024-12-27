@@ -19,7 +19,8 @@ const AboutMe = () => {
                             <img
                                 src="/profile.png" // Replace with your profile image path
                                 alt="Shivankar Patra"
-                                className="w-64 h-64 rounded-full shadow-md object-cover hover:scale-105 transition-transform duration-300"
+                                className="w-full h-full rounded-full object-cover hover:scale-105 transition-transform duration-300"
+                                style={{ objectFit: "cover" }} // Ensures proper fit inside the circle
                             />
                         </div>
                     </div>
